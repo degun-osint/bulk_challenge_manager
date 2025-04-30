@@ -1,8 +1,6 @@
 # CTFd Bulk Challenge Manager Plugin
 
 A plugin for CTFd that allows administrators to manage multiple challenges at once and visualize challenge dependencies in an interactive network graph.
-![bulk edit](readmeimg/bulk.jpg)
-![chall map](readmeimg/map.jpg)
 
 ## Support the Developer
 
@@ -11,6 +9,10 @@ If you find this plugin useful for your CTF events, consider supporting the deve
 <a href='https://ko-fi.com/D1D11CYJEY' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi1.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 
 ## Overview
+
+![bulk edit](readmeimg/bulk.jpg)
+
+![chall map](readmeimg/map.jpg)
 
 This plugin was developed to streamline challenge management for CTF administrators, making it easier to handle large competition setups with complex dependency relationships between challenges.
 
