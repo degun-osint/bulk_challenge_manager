@@ -1,6 +1,8 @@
 # CTFd Bulk Challenge Manager Plugin
 
 A plugin for CTFd that allows administrators to manage multiple challenges at once and visualize challenge dependencies in an interactive network graph.
+![bulk edit](readmeimg/bulk.jpg)
+![chall map](readmeimg/map.jpg)
 
 ## Support the Developer
 
