@@ -1,0 +1,373 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="jumbotron">
+    <div class="container">
+        <h1>Bulk Challenge Manager</h1>
+        <div class="mt-3">
+            <a href="{{ url_for('bulk_challenge_manager.challenge_map') }}" class="btn btn-info">
+                <i class="fas fa-project-diagram mr-2"></i>
+                Dependency Map
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <div class="col-md-12">
+            <!-- Filters and Search -->
+            <div class="card mb-4">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="fas fa-filter mr-2"></i>
+                        Filters
+                    </div>
+                    <div class="d-flex">
+                        <button id="reset-filters-btn" class="btn btn-sm btn-secondary">
+                            <i class="fas fa-undo mr-1"></i> Reset
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                </div>
+                                <input type="text" class="form-control" id="search-input" placeholder="Search challenges...">
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-tags"></i></span>
+                                </div>
+                                <select class="form-control" id="category-filter">
+                                    <option value="">All Categories</option>
+                                    <!-- Categories will be loaded here -->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-eye"></i></span>
+                                </div>
+                                <select class="form-control" id="state-filter">
+                                    <option value="">All States</option>
+                                    <option value="visible">Visible</option>
+                                    <option value="hidden">Hidden</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bulk Edit Form -->
+            <div id="bulk-edit-form" class="card mb-4 d-none">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="fas fa-edit mr-2"></i>
+                        Bulk Edit <span id="selected-count" class="badge badge-light ml-2">0</span> Challenges
+                    </div>
+                    <div>
+                        <button id="cancel-bulk-edit-btn" class="btn btn-sm btn-light mr-2">
+                            <i class="fas fa-times mr-1"></i> Cancel
+                        </button>
+                        <button id="apply-bulk-edit-btn" class="btn btn-sm btn-success">
+                            <i class="fas fa-check mr-1"></i> Apply Changes
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="form-group">
+                                <label class="mb-2">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="enable-category-edit">
+                                        <label class="custom-control-label" for="enable-category-edit">
+                                            <strong>Category</strong>
+                                        </label>
+                                    </div>
+                                </label>
+                                <input type="text" class="form-control" id="bulk-category" disabled>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="form-group">
+                                <label class="mb-2">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="enable-max-attempts-edit">
+                                        <label class="custom-control-label" for="enable-max-attempts-edit">
+                                            <strong>Max Attempts</strong>
+                                        </label>
+                                    </div>
+                                </label>
+                                <input type="number" class="form-control" id="bulk-max-attempts" disabled min="0">
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="form-group">
+                                <label class="mb-2">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="enable-state-edit">
+                                        <label class="custom-control-label" for="enable-state-edit">
+                                            <strong>State</strong>
+                                        </label>
+                                    </div>
+                                </label>
+                                <select class="form-control" id="bulk-state" disabled>
+                                    <option value="visible">Visible</option>
+                                    <option value="hidden">Hidden</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="form-group">
+                                <label class="mb-2">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="enable-value-edit">
+                                        <label class="custom-control-label" for="enable-value-edit">
+                                            <strong>Value</strong>
+                                        </label>
+                                    </div>
+                                </label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <select class="custom-select" id="value-edit-mode">
+                                            <option value="absolute">Set to</option>
+                                            <option value="relative">Adjust by</option>
+                                        </select>
+                                    </div>
+                                    <input type="number" class="form-control" id="bulk-value" disabled>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Challenge Table -->
+            <div class="card mb-4">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="fas fa-trophy mr-2"></i>
+                        Challenges
+                    </div>
+                    <div>
+                        <button id="refresh-btn" class="btn btn-sm btn-info">
+                            <i class="fas fa-sync-alt mr-1"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="challenges-table">
+                            <thead>
+                                <tr>
+                                    <th width="30">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="select-all">
+                                            <label class="custom-control-label" for="select-all"></label>
+                                        </div>
+                                    </th>
+                                    <th width="60">ID</th>
+                                    <th>Name</th>
+                                    <th>Category</th>
+                                    <th width="100">Value</th>
+                                    <th width="100">Attempts</th>
+                                    <th width="100">State</th>
+                                    <th width="120">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="challenges-tbody">
+                                <!-- Challenges will be loaded here -->
+                                <tr>
+                                    <td colspan="8" class="text-center py-4">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="sr-only">Loading...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Flag Edit Modal -->
+<div class="modal fade" id="flag-edit-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-flag mr-2"></i>
+                    Manage Flags
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="flags-container">
+                    <!-- Flags will be loaded here -->
+                </div>
+                <div class="mt-3">
+                    <button id="add-flag-btn" class="btn btn-sm btn-success">
+                        <i class="fas fa-plus mr-1"></i> Add Flag
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="save-flags-btn">
+                    <i class="fas fa-save mr-1"></i> Save Flags
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Challenge Edit Template -->
+<template id="challenge-details-template">
+    <tr class="challenge-details" style="background-color: #f8f9fa;">
+        <td colspan="8" class="p-0">
+            <div class="p-3">
+                <form class="challenge-edit-form">
+                    <input type="hidden" name="id" class="challenge-id">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Name</label>
+                                <input type="text" class="form-control challenge-name" name="name">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Category</label>
+                                <input type="text" class="form-control challenge-category" name="category">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>State</label>
+                                <select class="form-control challenge-state" name="state">
+                                    <option value="visible">Visible</option>
+                                    <option value="hidden">Hidden</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Value</label>
+                                <input type="number" class="form-control challenge-value" name="value" min="0">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label>Max Attempts</label>
+                                <input type="number" class="form-control challenge-max-attempts" name="max_attempts" min="0">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Connection Info</label>
+                                <input type="text" class="form-control challenge-connection-info" name="connection_info">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Attribution</label>
+                                <input type="text" class="form-control challenge-attribution" name="attribution">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea class="form-control challenge-description" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <div class="d-flex justify-content-between">
+                            <label>Flags</label>
+                            <button type="button" class="btn btn-sm btn-primary edit-flags-btn">
+                                <i class="fas fa-flag mr-1"></i> Manage Flags
+                            </button>
+                        </div>
+                        <div class="flags-summary border p-2 rounded" style="max-height: 100px; overflow-y: auto;">
+                            <!-- Flags summary will be shown here -->
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end mt-3">
+                        <button type="button" class="btn btn-secondary mr-2 cancel-edit-btn">Cancel</button>
+                        <button type="submit" class="btn btn-success save-challenge-btn">Save Challenge</button>
+                    </div>
+                </form>
+            </div>
+        </td>
+    </tr>
+</template>
+
+<!-- Flag Template -->
+<template id="flag-template">
+    <div class="flag-item card mb-3">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+            <div>
+                <i class="fas fa-flag mr-1"></i>
+                <span class="flag-title">Flag</span>
+            </div>
+            <button type="button" class="btn btn-sm btn-danger remove-flag-btn">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+        <div class="card-body">
+            <input type="hidden" class="flag-id">
+            <div class="form-row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select class="form-control flag-type">
+                            <!-- Flag types will be loaded here -->
+                            <option value="static">static</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Content</label>
+                        <input type="text" class="form-control flag-content" placeholder="Flag content">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Case Sensitivity</label>
+                        <select class="form-control flag-data">
+                            <option value="">Case Sensitive</option>
+                            <option value="case_insensitive">Case Insensitive</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+{% endblock %}
+
+{% block scripts %}
+<script defer src="{{ url_for('bulk_challenge_manager.assets', path='js/bulk_manager.js') }}"></script>
+{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{{ url_for('bulk_challenge_manager.assets', path='css/bulk_manager.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+{% endblock %}

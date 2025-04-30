@@ -1,0 +1,475 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="jumbotron">
+    <div class="container">
+        <h1>Challenge Dependency Map</h1>
+        <p class="lead">Visualize and modify the relationships between your challenges</p>
+    </div>
+</div>
+
+<div class="container-fluid px-4">
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="fas fa-project-diagram mr-2"></i>
+                        Challenge Map
+                    </div>
+                    <div class="d-flex">
+                        <button id="help-btn" class="btn btn-light btn-sm mr-2" data-toggle="modal" data-target="#help-modal">
+                            <i class="fas fa-question-circle mr-1"></i> Help
+                        </button>
+                        <button id="validate-graph-btn" class="btn btn-warning btn-sm mr-2">
+                            <i class="fas fa-check-circle mr-1"></i> Validate Logic
+                        </button>
+                        <button id="save-layout-btn" class="btn btn-success btn-sm mr-2">
+                            <i class="fas fa-save mr-1"></i> Save
+                        </button>
+                        <button id="reset-layout-btn" class="btn btn-secondary btn-sm mr-2">
+                            <i class="fas fa-undo mr-1"></i> Reset
+                        </button>
+                        <button id="export-image-btn" class="btn btn-info btn-sm">
+                            <i class="fas fa-download mr-1"></i> Export
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="d-flex">
+                        <!-- Control Panel -->
+                        <div class="challenge-map-controls p-3 border-right" style="width: 300px;">
+                            <div class="mb-3">
+                                <h5 class="border-bottom pb-2 mb-2 d-flex justify-content-between align-items-center">
+                                    <span>Legend</span>
+                                    <small class="text-muted" style="font-size: 12px; font-weight: normal; cursor: pointer;" 
+                                           data-toggle="collapse" data-target="#legend-collapse">
+                                        <i class="fas fa-chevron-down"></i>
+                                    </small>
+                                </h5>
+                                <div id="legend-collapse" class="collapse show">
+                                    <div class="legend-items">
+                                        <div class="d-flex align-items-center mb-1 small">
+                                            <div class="legend-box mr-2" style="width: 15px; height: 15px; background-color: #4285F4;"></div>
+                                            <span>Visible challenge</span>
+                                        </div>
+                                        <div class="d-flex align-items-center mb-1 small">
+                                            <div class="legend-box mr-2" style="width: 15px; height: 15px; background-color: #4285F4; opacity: 0.4;"></div>
+                                            <span>Hidden challenge</span>
+                                        </div>
+                                        <div class="d-flex align-items-center mb-1 small">
+                                            <div class="legend-box mr-2" style="width: 15px; height: 15px; background-color: white; border: 2px solid #FF5252; border-style: dashed;"></div>
+                                            <span>Isolated challenge</span>
+                                        </div>
+                                        <div class="d-flex align-items-center mb-1 small">
+                                            <div class="legend-box mr-2" style="width: 15px; height: 15px; background-color: white; border: 2px solid #FFEB3B; border-style: double;"></div>
+                                            <span>Circular dependency</span>
+                                        </div>
+                                        <div class="d-flex align-items-center small">
+                                            <div class="legend-arrow mr-2" style="width: 20px;"></div>
+                                            <span>Dependency (prerequisite)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h5 class="border-bottom pb-2 mb-2 d-flex justify-content-between align-items-center">
+                                <span>Filter by category</span>
+                                <small class="text-muted" style="font-size: 12px; font-weight: normal; cursor: pointer;" 
+                                       data-toggle="collapse" data-target="#filter-collapse">
+                                    <i class="fas fa-chevron-down"></i>
+                                </small>
+                            </h5>
+                            <div id="filter-collapse" class="collapse show mb-3">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="show-all-categories" checked>
+                                    <label class="form-check-label font-weight-bold small" for="show-all-categories">
+                                        Show all
+                                    </label>
+                                </div>
+                                <div id="category-filters" class="category-filter-container small">
+                                    <!-- Category filters will be added here -->
+                                </div>
+                            </div>
+                            
+                            <h5 class="border-bottom pb-2 mb-2">Selected Challenge</h5>
+                            <div id="selected-challenge-info" class="border rounded p-2 mb-3 bg-light shadow-sm" style="max-height: 500px; overflow-y: auto;">
+                                <div class="text-muted text-center small">
+                                    <i>Click on a challenge to see its details</i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Main network visualization -->
+                        <div class="flex-grow-1 position-relative">
+                            <div id="challenge-network" style="height: 700px; background-color: #f8f9fa;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Help Modal -->
+<div class="modal fade" id="help-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title">
+                    <i class="fas fa-question-circle mr-2"></i>
+                    How to use the challenge map
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h6 class="font-weight-bold">Manipulating challenges</h6>
+                <ul class="small mb-4">
+                    <li class="mb-2">Move challenges by dragging and dropping to reorganize them</li>
+                    <li class="mb-2">Click on a challenge to see its details in the side panel</li>
+                    <li class="mb-2">Double-click to zoom in on a specific challenge</li>
+                </ul>
+                
+                <h6 class="font-weight-bold">Managing dependencies</h6>
+                <ul class="small mb-4">
+                    <li class="mb-2">Right-click on a challenge then click on another challenge to create a dependency</li>
+                    <li class="mb-2">Click on an arrow to delete an existing dependency</li>
+                </ul>
+                
+                <h6 class="font-weight-bold">Advanced features</h6>
+                <ul class="small">
+                    <li class="mb-2">Use the "Validate Logic" button to identify potential problems</li>
+                    <li class="mb-2">Save the layout with the "Save" button to keep it</li>
+                    <li class="mb-2">Export the image with the "Export" button to get a PNG image</li>
+                    <li class="mb-2">Use category filters to display only certain types of challenges</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Challenge Edit Modal -->
+<div class="modal fade" id="challenge-edit-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit mr-2"></i>
+                    Edit Challenge
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="challenge-edit-form">
+                    <input type="hidden" id="edit-challenge-id">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Name</label>
+                                <input type="text" class="form-control" id="edit-challenge-name">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Value</label>
+                                <input type="number" class="form-control" id="edit-challenge-value" min="0">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>State</label>
+                                <select class="form-control" id="edit-challenge-state">
+                                    <option value="visible">Visible</option>
+                                    <option value="hidden">Hidden</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <input type="text" class="form-control" id="edit-challenge-category">
+                    </div>
+                    <div class="form-group">
+                        <label>Prerequisites</label>
+                        <div id="edit-challenge-prerequisites" class="border rounded p-3 bg-light">
+                            <!-- Prerequisites will be displayed here -->
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="save-challenge-btn">
+                    <i class="fas fa-save mr-1"></i> Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Cytoscape Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.26.0/cytoscape.min.js"></script>
+<!-- Layout Dependencies -->
+<script src="https://unpkg.com/layout-base@2.0.0/layout-base.js"></script>
+<script src="https://unpkg.com/cose-base@2.0.0/cose-base.js"></script>
+<!-- Enhanced Layout for Cytoscape -->
+<script src="https://cdn.jsdelivr.net/npm/cytoscape-cose-bilkent@4.1.0/cytoscape-cose-bilkent.min.js"></script>
+<!-- Popper extension and tooltips -->
+<script src="https://unpkg.com/@popperjs/core@2"></script>
+<script src="https://unpkg.com/tippy.js@6"></script>
+<!-- Our code -->
+<script src="{{ url_for('bulk_challenge_manager.assets', path='js/challenge_map.js') }}"></script>
+{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{{ url_for('bulk_challenge_manager.assets', path='css/challenge_map.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link rel="stylesheet" href="https://unpkg.com/tippy.js@6/dist/tippy.css">
+<style>
+    .jumbotron {
+        background-color: #f8f9fc;
+        margin-bottom: 1.5rem;
+        padding: 2rem 1rem;
+        border-radius: 0.3rem;
+    }
+    
+    .jumbotron h1 {
+        font-weight: 600;
+        color: #4e73df;
+    }
+    
+    .jumbotron .lead {
+        font-weight: 300;
+        color: #5a5c69;
+    }
+    
+    .legend-box {
+        width: 20px;
+        height: 20px;
+        border-radius: 6px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .legend-arrow {
+        width: 30px;
+        height: 2px;
+        background-color: #757575;
+        position: relative;
+    }
+    
+    .legend-arrow:after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: -4px;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 5px 0 5px 8px;
+        border-color: transparent transparent transparent #757575;
+    }
+    
+    .category-color-indicator {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border-radius: 4px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    
+    .cytoscape-control-btn {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        z-index: 10;
+        padding: 10px 15px;
+        border-radius: 50px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .cytoscape-control-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 7px 14px rgba(0, 0, 0, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+    }
+    
+    .form-check-label {
+        cursor: pointer;
+        font-size: 0.7rem;
+    }
+    
+    .challenge-map-controls {
+        border-right: 1px solid #e3e6f0;
+        background-color: #f8f9fc;
+        overflow-y: auto;
+    }
+    
+    /* Badge improvements */
+    .badge {
+        font-weight: 500;
+        padding: 0.35em 0.65em;
+        border-radius: 0.25rem;
+    }
+    
+    /* Node highlight on hover */
+    .node:hover {
+        border-width: 3px !important;
+    }
+    
+    /* Pulse animation for errors */
+    @keyframes pulse-error {
+        0% {
+            box-shadow: 0 0 0 0 rgba(255, 82, 82, 0.7);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(255, 82, 82, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(255, 82, 82, 0);
+        }
+    }
+    
+    .orphan, .cycle {
+        animation: pulse-error 2s infinite;
+    }
+    
+    /* Tooltip improvements */
+    .node-tooltip {
+        background: white;
+        padding: 8px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Card header with subtle gradient */
+    .card-header {
+        background: linear-gradient(to right, #f8f9fc, #f1f3f9);
+        border-bottom: 1px solid #e3e6f0;
+    }
+    
+    /* Responsive design */
+    @media (max-width: 992px) {
+        .challenge-map-controls {
+            width: 100% !important;
+            border-right: none !important;
+            border-bottom: 1px solid #e3e6f0;
+            max-height: 300px;
+        }
+        
+        .d-flex {
+            flex-direction: column;
+        }
+        
+        #challenge-network {
+            height: 500px !important;
+        }
+    }
+    
+    /* Style for information panel */
+    #selected-challenge-info {
+        transition: all 0.3s ease;
+        border: none;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+    
+    #selected-challenge-info:empty {
+        box-shadow: none;
+    }
+    
+    /* Animate panel appearance */
+    #selected-challenge-info:not(:empty) {
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Badge style improvements */
+    .badge {
+        font-weight: 500;
+        letter-spacing: 0.3px;
+    }
+    
+    /* Custom tooltip */
+    #cytoscape-tooltip {
+        position: absolute;
+        background-color: white;
+        padding: 10px;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        pointer-events: none;
+        max-width: 250px;
+        z-index: 1000;
+        transition: opacity 0.2s;
+    }
+    
+    /* Styles for compact legend */
+    .legend-items {
+        font-size: 0.85rem;
+    }
+    
+    /* Styles for side section titles */
+    .challenge-map-controls h5 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #4e73df;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Style for scrollable challenge details panel */
+    #selected-challenge-info::-webkit-scrollbar {
+        width: 5px;
+    }
+    
+    #selected-challenge-info::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+    
+    #selected-challenge-info::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+    }
+    
+    #selected-challenge-info::-webkit-scrollbar-thumb:hover {
+        background: #a1a1a1;
+    }
+    
+    /* Style for category filter container */
+    .category-filter-container {
+        max-height: 200px;
+        overflow-y: auto;
+        padding-left: 1rem;
+    }
+    
+    .category-filter-container::-webkit-scrollbar {
+        width: 5px;
+    }
+    
+    .category-filter-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+    
+    .category-filter-container::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+    }
+    
+    .category-filter-container::-webkit-scrollbar-thumb:hover {
+        background: #a1a1a1;
+    }
+</style>
+{% endblock %}

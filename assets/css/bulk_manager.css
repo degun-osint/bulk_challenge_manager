@@ -1,0 +1,379 @@
+/* General styles */
+.jumbotron {
+    padding: 2rem 1rem;
+    margin-bottom: 2rem;
+    background-color: #e9ecef;
+    border-radius: 0.3rem;
+}
+
+.jumbotron h1 {
+    font-weight: 300;
+}
+
+.challenge-row:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+/* Flag styles */
+.flag-summary-item {
+    margin-bottom: 0.5rem;
+}
+
+.flag-summary-item:last-child {
+    margin-bottom: 0;
+}
+
+/* Expanded form styles */
+.challenge-details {
+    transition: all 0.3s ease;
+}
+
+/* Animations */
+.challenge-details-enter {
+    max-height: 0;
+    overflow: hidden;
+}
+
+.challenge-details-enter-active {
+    max-height: 2000px;
+    transition: max-height 0.5s ease-in-out;
+}
+
+.challenge-details-exit {
+    max-height: 2000px;
+    overflow: hidden;
+}
+
+.challenge-details-exit-active {
+    max-height: 0;
+    transition: max-height 0.5s ease-in-out;
+}
+
+/* Notifications */
+#notification-container {
+    width: 350px;
+    max-width: 90%;
+}
+
+#notification-container .alert {
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0.25rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* Custom checkboxes */
+.custom-checkbox .custom-control-input:checked ~ .custom-control-label::before {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.custom-checkbox .custom-control-input:focus ~ .custom-control-label::before {
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Badges */
+.badge-success {
+    background-color: #28a745;
+}
+
+.badge-secondary {
+    background-color: #6c757d;
+}
+
+.badge-info {
+    background-color: #17a2b8;
+}
+
+.badge-danger {
+    background-color: #dc3545;
+}
+
+.badge-warning {
+    background-color: #ffc107;
+}
+
+/* Table responsiveness */
+@media (max-width: 992px) {
+    .table-responsive {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Card styles */
+.card {
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    border-radius: 0.25rem;
+}
+
+.card-header {
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 0;
+    background-color: rgba(0, 0, 0, 0.03);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.card-body {
+    padding: 1.25rem;
+}
+
+/* Editor styles for description */
+.challenge-description {
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    resize: vertical;
+}
+
+/* Flag item styles */
+.flag-item {
+    transition: all 0.3s ease;
+}
+
+.flag-item:hover {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* Button styles */
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+}
+
+/* Form row spacing */
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -5px;
+    margin-left: -5px;
+}
+
+.form-row > .col,
+.form-row > [class*="col-"] {
+    padding-right: 5px;
+    padding-left: 5px;
+}
+
+/* Improve form control appearance */
+.form-control {
+    display: block;
+    width: 100%;
+    height: calc(1.5em + 0.75rem + 2px);
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus {
+    color: #495057;
+    background-color: #fff;
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Bulk edit form specific styles */
+#bulk-edit-form {
+    transition: all 0.3s ease;
+}
+
+/* Input group styling */
+.input-group {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    width: 100%;
+}
+
+.input-group-prepend {
+    display: flex;
+    margin-right: -1px;
+}
+
+.input-group > .form-control:not(:first-child) {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.input-group > .form-control:not(:last-child) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.input-group-text {
+    display: flex;
+    align-items: center;
+    padding: 0.375rem 0.75rem;
+    margin-bottom: 0;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    text-align: center;
+    white-space: nowrap;
+    background-color: #e9ecef;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+}
+
+/* Custom select styling */
+.custom-select {
+    display: inline-block;
+    width: 100%;
+    height: calc(1.5em + 0.75rem + 2px);
+    padding: 0.375rem 1.75rem 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    vertical-align: middle;
+    background: #fff url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%23343a40' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") no-repeat right 0.75rem center/8px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    appearance: none;
+}
+
+/* Value adjust mode dropdown styling */
+#value-edit-mode {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: 0;
+}
+
+/* Flag item styling */
+.flag-item .card-header {
+    padding: 0.5rem 1rem;
+}
+
+.flag-item .card-body {
+    padding: 1rem;
+}
+
+.remove-flag-btn {
+    padding: 0.1rem 0.5rem;
+}
+
+/* Challenge row expansion effect */
+.challenge-row {
+    cursor: pointer;
+}
+
+.challenge-row:hover td:not(:last-child) {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.challenge-details td {
+    border-top: none;
+}
+
+/* Make the edit buttons look nicer */
+.edit-btn, .edit-flags-btn {
+    transition: all 0.2s ease;
+}
+
+.edit-btn:hover, .edit-flags-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Improve spacing in the flag modal */
+#flags-container {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+/* Style checkbox labels */
+.custom-control-label {
+    user-select: none;
+}
+
+.custom-control-label::before,
+.custom-control-label::after {
+    cursor: pointer;
+}
+
+/* Add transition to the bulk edit form */
+#bulk-edit-form.d-none {
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+#bulk-edit-form {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+/* Make filter inputs more responsive */
+@media (max-width: 768px) {
+    .input-group {
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Style code elements */
+code {
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.9em;
+    color: #e83e8c;
+    word-break: break-word;
+}
+
+/* Flags summary styling */
+.flags-summary {
+    background-color: #f8f9fa;
+    max-height: 120px;
+    overflow-y: auto;
+    padding: 0.5rem;
+}
+
+.flag-summary-item {
+    margin-bottom: 0.25rem;
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+}
+
+.flag-summary-item:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+/* Focus outline for accessibility */
+:focus {
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Make buttons more touch-friendly */
+.btn {
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+/* Improve spacing between form groups */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+/* Style textareas to be more comfortable */
+textarea.form-control {
+    min-height: 100px;
+}
