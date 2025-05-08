@@ -92,7 +92,7 @@ Both components interact with the CTFd database through custom API endpoints to 
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the GNU General Public License v3.0 - see the LICENSE file for details.
 
 ## Contributing
 
